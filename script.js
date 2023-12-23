@@ -3,8 +3,9 @@
 // @version       1.0
 // @include       *://*.koalabeast.com*
 // @include		  *://*.newcompte.fr:*
-// @author        Balled Eagle
+// @author        Balled Eagle (shell from RonSpawnson's MLTP Live script)
 // @require       https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
+
 // ==/UserScript==
 
 // IMAGES FOR SCOREBOARD BASE
@@ -37,8 +38,6 @@ waitForInitialized(function() {
                 var windowHeight = window.innerHeight;
                 var windowTop = windowHeight * 0.05;
                 var windowMiddle = (windowHeight - 660)/2;
-                var canvasLeft = 320;
-                var canvasTop = 77.5;
 
                 var laps = 0;
                 var lap1Time = 0;
@@ -151,22 +150,24 @@ waitForInitialized(function() {
 
                 //someone left? who would do that
                 tagpro.socket.on('playerLeft', function(data) {
-                    for (var l in players) {
-                        if (players[l].id == data) {
-                            var leftPos = players[l].position;
-                            players[l].position = 100;
-                            for (var m in players) {
-                                if (players[m].position > leftPos) {
-                                    players[m].position = players[m].position - 1; //everyone behind them moves up 1 slot
-                                    var positionA = "player" + String(players[m].id) + "pos";
-                                    document.getElementById(positionA).innerHTML = players[m].position;
+                    if (tagpro.state != 2) { //we don't care if the race already ended
+                        for (var l in players) {
+                            if (players[l].id == data) {
+                                var leftPos = players[l].position;
+                                players[l].position = 100;
+                                for (var m in players) {
+                                    if (players[m].position > leftPos) {
+                                        players[m].position = players[m].position - 1; //everyone behind them moves up 1 slot
+                                        var positionA = "player" + String(players[m].id) + "pos";
+                                        document.getElementById(positionA).innerHTML = players[m].position;
+                                    }
                                 }
+                                reorderPlayers();
+                                players.splice(l, 1); //get em outta the player array
                             }
-                            reorderPlayers();
-                            players.splice(l, 1); //get em outta the player array
                         }
+                        playerCount--;
                     }
-                    playerCount--;
                 });
 
                 function hideSpectatorInfo1() {
